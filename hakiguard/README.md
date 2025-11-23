@@ -1,38 +1,18 @@
 1. hakiguard – módulo de análise baseada em IA
 
-O hakiguard é um módulo do projeto project_software_router responsável por executar detecção de tráfego suspeito e possíveis ataques DDoS utilizando inteligência artificial.
-Ele funciona como um componente desacoplado, rodando em containers, e se comunica com o software router principal através de uma API HTTP.
+	O hakiguard é um módulo do projeto project_software_router responsável por executar detecção de tráfego suspeito e possíveis ataques DDoS utilizando 	inteligência artificial.
+	Ele funciona como um componente desacoplado, rodando em containers, e se comunica com o software router principal através de uma API HTTP.
 
-O módulo contém duas áreas principais:
+	O módulo contém duas áreas principais:
 
-  Ambiente de inferência (produção) – executa a IA treinada e expõe uma API que o router consome.
+  	Ambiente de inferência (produção) – executa a IA treinada e expõe uma API que o router consome.
 
-  Ambiente de treinamento (desenvolvimento) – usado apenas para criação e atualização dos modelos de IA.
+  	Ambiente de treinamento (desenvolvimento) – usado apenas para criação e atualização dos modelos de IA.
 
-hakiguard/
-│
-├── README.md
-├── .gitignore
-├── .env.example
-├── docker-compose.yml
-│
-├── models/
-│
-├── inference/
-│   ├── Dockerfile
-│   ├── requirements.txt
-│   └── src/
-│       └── inference.py
-│
-└── training/
-    ├── docker-compose.yml
-    ├── Dockerfile
-    ├── requirements.txt
-    └── src/
-        └── train.py
+  	<img width="668" height="269" alt="image" src="https://github.com/user-attachments/assets/6cac37e3-76f5-49a7-9d57-d0f39f252060" />
+
 
 2. Descrição detalhada dos diretórios
-
 
   2.1 - models/
 
