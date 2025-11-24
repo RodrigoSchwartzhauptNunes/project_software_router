@@ -9,7 +9,8 @@
 
   	Ambiente de treinamento (desenvolvimento) – usado apenas para criação e atualização dos modelos de IA.
 
-  	<img width="668" height="269" alt="image" src="https://github.com/user-attachments/assets/6cac37e3-76f5-49a7-9d57-d0f39f252060" />
+  	<img width="590" height="312" alt="image" src="https://github.com/user-attachments/assets/a681e24f-c3cc-49ed-931c-e02b80dba0b3" />
+
 
 
 2. Descrição detalhada dos diretórios

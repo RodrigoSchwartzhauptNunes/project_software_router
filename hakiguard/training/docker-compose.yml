@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  hakiguard_training:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hakiguard_training
+    env_file:
+      - ../.env
+    volumes:
+      - ../models:/app/models
+      - ./src:/app/src
+      - ./dataset:/app/dataset
+      - ./output:/app/output
+    working_dir: /app
+    command: ["python3", "src/train.py"]
