@@ -1,118 +1,282 @@
-1. hakiguard – módulo de análise baseada em IA
+HakiGuard – Módulo Inteligente de Detecção e Mitigação de Ataques DDoS
+###
+#25/11/25
+######
+###Parte integrante do projeto project_software_router
 
-	O hakiguard é um módulo do projeto project_software_router responsável por executar detecção de tráfego suspeito e possíveis ataques DDoS utilizando 	inteligência artificial.
-	Ele funciona como um componente desacoplado, rodando em containers, e se comunica com o software router principal através de uma API HTTP.
+    O HakiGuard é um módulo de segurança baseado em inteligência artificial projetado para rodar dentro do ambiente OpenWRT como parte de um software router avançado.
+    
+    Ele tem como função:
+    
+        capturar o tráfego da rede
+        
+        extrair flows usando CICFlowMeter
+        
+        aplicar modelos de IA treinados para identificar tráfego malicioso
+        
+        gerar alertas em tempo real ## Ainda vendo essa parte
+        
+        enviar esses alertas ao núcleo do roteador via UNIX Socket
+        
+        aplicar mitigação automática com regras em nftables
+        
+        O sistema foi projetado para ser altamente modular, eficiente e fácil de atualizar, permitindo que novos modelos de IA sejam    treinados e substituídos sem modificar o módulo de produção.
 
-	O módulo contém duas áreas principais:
+###Arquitetura do Sistema
 
-  	Ambiente de inferência (produção) – executa a IA treinada e expõe uma API que o router consome.
+A arquitetura do HakiGuard é dividida em duas partes:
 
-  	Ambiente de treinamento (desenvolvimento) – usado apenas para criação e atualização dos modelos de IA.
+1. Ambiente de Produção (rodando no OpenWRT,)
 
-  	<img width="590" height="312" alt="image" src="https://github.com/user-attachments/assets/a681e24f-c3cc-49ed-931c-e02b80dba0b3" />
+    captura de tráfego
+    
+    geração de flows via CICFlowMeter
+    
+    inferência IA usando modelos prontos
+    
+    envio de alertas via UNIX socket
+    
+    listener/mitigação automática
+    
+    serviço init.d para execução automática no roteador
 
-
-
-2. Descrição detalhada dos diretórios
-
-  2.1 - models/
-
-	Responsável por armazenar os modelos de IA já treinados e prontos para uso.
-	A IA de produção lê exclusivamente os arquivos deste diretório.
-	Normalmente contém arquivos como .tflite, .h5 ou .onnx, além de metadados de versão.
-
-	Este diretório faz parte do ambiente de produção e deve estar sempre presente.
-
-
-  2.2 - inference/
-
-	Contém toda a estrutura utilizada para executar o modelo de IA em produção.
-	Este ambiente é carregado pelo docker-compose.yml principal e expõe uma API HTTP para que o software router solicite análises.
-
-	Conteúdo:
-
-		Dockerfile
-			Define a imagem do container de inferência e suas dependências.
-			Aqui serão configurados os requisitos para carregar modelos, rodar a IA e iniciar o serviço da API.
-
-		requirements.txt
-			Lista as dependências de software necessárias para a execução do ambiente de inferência.
-
-		src/inference.py
-			Arquivo principal do módulo de inferência.
-			Ele será responsável por:
-
-			carregar o modelo presente em models/
-
-			iniciar o serviço de inferência
-
-			responder às requisições feitas pelo software router
+2. Ambiente de Treinamento (rodando via Docker, isolado)
 
 
-  2.3 - training/
-
-	Ambiente usado exclusivamente no processo de desenvolvimento para treinar modelos da IA.
-	Esse diretório não faz parte da produção e nunca é carregado pelo router.
-
-	Este ambiente terá seu próprio docker-compose.yml, permitindo criar uma estrutura isolada com dataset, notebooks e ferramentas de treinamento sem afetar o ambiente principal.
-
-	Conteúdo:
-
-		docker-compose.yml
-			Compose exclusivo para o ambiente de desenvolvimento.
-			Permite subir containers de treinamento, acesso ao dataset e ferramentas auxiliares.
-
-		Dockerfile
-			Define o ambiente onde o treinamento será executado, incluindo dependências e ferramentas específicas de machine learning.
-
-		requirements.txt
-			Lista de dependências necessárias para o processo de treinamento.
-
-		src/train.py
-			Ponto de entrada do ambiente de treinamento.
-			Este arquivo será responsável por carregar o dataset, treinar o modelo e salvar os arquivos finais dentro do diretório models/.
-
-3. Arquivos da raiz do módulo
-
-  3.1 - docker-compose.yml
-
-	Compose principal do módulo hakiguard.
-	Ele monta o diretório models/ no container de inferência e utiliza as variáveis definidas no arquivo .env.
-	É responsável por subir a API de IA que será utilizada pelo software router.
-
-  3.2 - .env.example
-
-	Arquivo contendo todas as variáveis necessárias para configurar o módulo.
-	O usuário deve copiá-lo para .env antes de executar o módulo.
-
-	Exemplos de variáveis que podem existir:
-
-		porta da API
-
-		caminho do modelo
-
-		nome do arquivo do modelo
-
-		parâmetros de execução
-
-  3.3 - .gitignore
-
-	Define arquivos e diretórios que não devem ser versionados.
-	Inclui itens como:
-
-		.env
-
-		caches
-
-		logs
-
-		arquivos gerados automaticamente
-
-		modelos grandes
-
-  3.4 - README.md
-
-	Documento que descreve a estrutura, propósito e funcionamento do módulo.
+    script de treinamento
+    
+    requirements específicos
+    
+    dataset (Portmap.csv, CICIDS etc.)
+    
+    geração automatizada dos modelos
+    
+    exportação para hakiguard/models/
+    
+    Esse ambiente não roda no OpenWRT, sendo utilizado apenas quando há necessidade de atualizar ou evoluir a IA.
 
 
+Estrutura Completa do Projeto
 
+        hakiguard/
+        ├── README.md
+        ├── .env
+        │
+        ├── models/
+        │   ├── random_forest_model.pkl
+        │   ├── linear_regression_model.pkl
+        │   ├── scaler.pkl
+        │   └── metadata.json
+        │
+        ├── capture/
+        │   ├── capture.sh
+        │   └── interface.conf
+        │
+        ├── cicflowmeter/
+        │   ├── CICFlowMeter.jar
+        │   ├── run_cicflow.sh
+        │   └── output/
+        │
+        ├── inference/
+        │   ├── inference.py
+        │   ├── config.json
+        │   └── utils/
+        │       ├── preprocess.py
+        │       └── load_flow.py
+        │
+        ├── bridge/
+        │   └── send_result.py
+        │
+        ├── listener/
+        │   ├── hakiguard-listener.py
+        │   └── rules/
+        │       └── default_rule.sh
+        │
+        ├── init/
+        │   └── hakiguard
+        │
+        ├── var/
+        │   ├── run/hakiguard.sock
+        │   └── log/hakiguard.log
+        │
+        └── training/              (somente para desenvolvimento)
+            ├── dataset/Portmap.csv
+            ├── output/grafico.png
+            ├── src/train.py
+            ├── Dockerfile
+            ├── docker-compose.yml
+            └── requirements.txt
+
+
+Descrição de Cada Diretório 
+ 
+ O que cada um faz
+
+      models/
+      
+      Armazena todos os modelos de IA treinados, utilizados em produção.
+      
+      Contém:
+      
+      modelos preditivos .pkl
+      
+      scaler de normalização
+      
+      metadados da versão do modelo
+
+      Atualizado automaticamente pelo módulo de treinamento (Docker).
+
+
+##############################
+
+      capture/
+      
+      Responsável por capturar tráfego real da interface configurada.
+      
+      capture.sh
+      Script para capturar tráfego via tcpdump ou redirect para CICFlowMeter
+      
+      interface.conf
+      Define qual interface será monitorada (eth0, br-lan, etc.)
+
+##############################
+
+      cicflowmeter/
+      
+      Realiza a extração de flows do tráfego capturado.
+      
+      CICFlowMeter.jar → extrator oficial
+      
+      run_cicflow.sh → script para iniciar o extrator
+      
+      output/ → onde os flows CSV são salvos
+      
+      Esses flows alimentam o módulo de inferência.
+
+##############################
+
+      inference/
+      
+      Aplica o modelo de IA treinado para analisar os flows gerados.
+      
+      Arquivos principais:
+      
+      inference.py
+      
+      lê modelo(s) em /models
+      
+      processa novo fluxo
+      
+      roda a inferência
+      
+      detecta possíveis ataques
+      
+      envia resultado para bridge/send_result.py
+      
+      config.json
+      Parâmetros de threshold, caminhos, tuning de IA
+      
+      utils/preprocess.py
+      Normaliza features igual ao treinamento
+      
+      utils/load_flow.py
+      Lê o último flow CSV para inferência
+
+##############################
+      
+      bridge/
+      
+      Faz a comunicação entre a IA e o sistema principal via UNIX socket.
+      
+      send_result.py
+      Envia um JSON contendo o resultado da inferência:
+      
+      {
+        "attack": true,
+        "prob": 0.95,
+        "source_ip": "10.0.0.55"
+      }
+
+##############################
+
+      listener/
+      
+      Responsável por:
+      
+      ouvir o socket
+      
+      receber alertas da IA
+      
+      aplicar mitigação automática usando nftables
+      
+      registrar logs
+      
+      executar scripts personalizados
+      
+      Arquivos principais:
+      
+      hakiguard-listener.py
+      Servidor socket que toma decisões
+      
+      rules/default_rule.sh
+      Regra padrão de firewall usada na mitigação automática
+
+##############################
+
+      init/
+      
+      Contém o script init.d para o OpenWRT.
+      
+      hakiguard → inicia/para/restarta o listener no boot
+
+##############################
+
+      var/
+      
+      Arquivos de runtime do módulo.
+      
+      run/hakiguard.sock
+      Socket UNIX para comunicação
+      
+      log/hakiguard.log
+      Log persistente das ações do HakiGuard
+
+##############################
+
+
+      Ambiente de Treinamento (Docker)
+      
+      O treinamento da IA é totalmente separado do módulo de produção.
+      
+      Ele contém:
+      
+      dataset (ex.: Portmap.csv)
+      
+      ambiente Python isolado
+      
+      src/train.py com todo o pipeline de:
+      
+      limpeza de dados
+      
+      seleção de features
+      
+      escalonamento
+      
+      treino dos modelos
+      
+      avaliação
+      
+      exportação dos modelos para /hakiguard/models/
+      
+      renderização do gráfico da performance (grafico.png)
+      
+      instalação de dependências via Dockerfile
+
+##############################
+
+Como funciona o fluxo completo
+
+
+OpenWRT → captura → CICFlowMeter → inference → socket → firewall
+
+Continuar detalhamento 
