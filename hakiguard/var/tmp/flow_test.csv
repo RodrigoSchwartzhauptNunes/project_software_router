@@ -1,0 +1,2 @@
+Src IP,Src Port,Dst IP,Dst Port,Protocol,Flow Duration,Tot Fwd Pkts,Tot Bwd Pkts
+192.168.1.50,12345,192.168.1.1,80,TCP,1500,10,2

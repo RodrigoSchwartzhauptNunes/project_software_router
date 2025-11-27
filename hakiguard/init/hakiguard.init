@@ -1,0 +1,23 @@
+#!/bin/sh /etc/rc.common
+
+START=95
+STOP=05
+
+USE_PROCD=1
+SERVICE_NAME="hakiguard"
+BASE_DIR="/root/hakiguard"
+RUN_SCRIPT="$BASE_DIR/init/run_hakiguard.sh"
+
+start_service() {
+    echo "[HakiGuard] Iniciando serviço..."
+    procd_open_instance
+    procd_set_param command $RUN_SCRIPT
+    procd_set_param respawn
+    procd_close_instance
+}
+
+stop_service() {
+    echo "[HakiGuard] Parando serviço..."
+    killall -9 run_hakiguard.sh >/dev/null 2>&1
+    killall -9 python3 >/dev/null 2>&1
+}
